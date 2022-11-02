@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Controllers\w3kzp44v.lzo~" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Products.BusinessLogic\Products.BusinessLogic.csproj" />
+    <ProjectReference Include="..\Products.DataAccess\Products.DataAccess.csproj" />
+    <ProjectReference Include="..\Store.DataAccess\Store.DataAccess.csproj" />
+  </ItemGroup>
+
+
+</Project>
