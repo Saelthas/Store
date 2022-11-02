@@ -135,7 +135,7 @@ namespace Products.DataAccess
         {
             try
             {
-                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[AddProduct]");
+                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[UpdateProduct]");
                 storeProcedure.AddParameter("@Id", product.Id);
                 storeProcedure.AddParameter("@Name", product.Name);
                 storeProcedure.AddParameter("@Description", product.Description);
@@ -148,12 +148,12 @@ namespace Products.DataAccess
                         Int64 identity = 0;
                         foreach (DataRow item in dataTable.Rows)
                         {
-                            identity = Convert.ToInt64(item["@@ROW_COUNT"].ToString());
+                            identity = Convert.ToInt64(item["@@ROWCOUNT"].ToString());
                         }
                         return Response.Success(identity);
                     }
                     else
-                        return (Response.Error("No se pudo crear el producto"));
+                        return (Response.Error("No se pudo Actualizar el producto"));
                 }
                 else
                 {
@@ -164,6 +164,35 @@ namespace Products.DataAccess
             catch (Exception ex)
             {
                 this.logger?.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public Response DeleteProduct(int Id)
+        {
+            try
+            {
+                var storeProcedure = new StoreProcedure("[dbo].[DeleteProduct]");
+                storeProcedure.AddParameter("@id", Id);
+                var dataTable = storeProcedure.ExecuteQuery(connection);
+                if (storeProcedure.Error.Length <= 0)
+                {
+                    if (dataTable.Rows.Count > 0&& dataTable.Rows[0]["@@ROWCOUNT"].ToString()!="0")
+                    {
+                        return Response.Success(Convert.ToInt64(dataTable.Rows[0]["@@ROWCOUNT"].ToString()));
+                    }
+                    else
+                        return Response.Error("No se pudo realizar la eliminacion");
+                }
+                else
+                {
+                    this.logger?.LogError(storeProcedure.Error);
+                    return Response.ExceptionGenerate(storeProcedure.Error, Validation.SuggestedMessages.ErrorSql);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }

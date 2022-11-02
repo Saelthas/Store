@@ -35,9 +35,9 @@ namespace Common.Services
 
                 return new OkObjectResult(new Response<TResponse>()
                 {
-                    State = 1,
-                    Data = (TResponse)result.Data,
-                    Message = string.Empty
+                    State = result.State,
+                    Data = (TResponse)result.Data,//==null? default(TResponse) :(TResponse)result.Data,
+                    Message = result.Message
                 });
             }
             catch (Exception ex)
@@ -52,7 +52,7 @@ namespace Common.Services
             }
         }
 
-        public IActionResult Execute<TResponse>(Func<TResponse> func)
+        public IActionResult Execute<TResponse>(Func<Response> func)
         {
             try
             {
@@ -63,7 +63,7 @@ namespace Common.Services
                 return new OkObjectResult(new Response<TResponse>()
                 {
                     State = 1,
-                    Data = (TResponse)result,
+                    Data = (TResponse)result.Data,
                     Message = string.Empty
                 });
             }

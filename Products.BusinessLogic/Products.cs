@@ -36,9 +36,17 @@ namespace Products.BusinessLogic
                 return Response.Error(NewProduct.Message);
             return Response.Success(NewProduct.Data);
         }
-        public Response UpdateProduct(ProductDTO product)
+        public Response UpdateProduct(Product product)
         {
-            var UpProduct = _productsDB.AddProduct(product);
+            var UpProduct = _productsDB.UpdateProduct(product);
+            if (UpProduct.Data == null)
+                return Response.Error(UpProduct.Message);
+            return Response.Success(UpProduct.Data);
+        }
+
+        public Response DeleteProduct(int Id)
+        {
+            var UpProduct = _productsDB.DeleteProduct(Id);
             if (UpProduct.Data == null)
                 return Response.Error(UpProduct.Message);
             return Response.Success(UpProduct.Data);

@@ -30,26 +30,30 @@ namespace Products.Service.Controllers
         [HttpGet]
         public IActionResult GetAllProducts()
         {
-            return Execute(_products.GetAllProduct);
+            return Execute<List<Product>>(_products.GetAllProduct);
         }
         //[Route("getProductById/{id}")]
         [HttpGet("{id}", Name = "ProductById")]
         public IActionResult GetProductById(int id)
         {
-            return Execute<int, Response>(new Request<int>() { Data = id }, _products.GetProduct);
+            if (id == 0)
+            {
+                return BadRequest("Id invalido");
+            }
+            return Execute<int, Product>(new Request<int>() { Data = id }, _products.GetProduct);
             //return null;
         }
         [HttpPost]
         public IActionResult CreateProduct([FromBody] Request<ProductDTO> request)
         {
 
-            if (request == null)
+            if (request.Data == null)
             {
-                return BadRequest("Owner object is null");
+                return BadRequest("Objeto ProductDTO es nulo");
             }
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid model object");
+                return BadRequest("Modelo de objecto invalido");
             }
             return Execute<ProductDTO, Int64>(request, _products.CreateProduct);
             //var respo1 = ((response as ObjectResult).Value) as Response<Int64>;
@@ -74,14 +78,16 @@ namespace Products.Service.Controllers
             {
                 return BadRequest("Invalid model object");
             }
-            return Execute<ProductDTO, Int64>(request, _products.CreateProduct);
-            return null;
+            var x = new Request<Product> { Data = new Product() { Id = id, Name = request.Data.Name, Description = request.Data.Description } };
+            return Execute<Product, Int64>(x, _products.UpdateProduct);
         }
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {
 
-            return null;
+            if (id == 0)
+                return BadRequest("Id invalido");
+            return Execute<int, object>(new Request<int>() { Data = id }, _products.DeleteProduct);
         }
     }
 }

@@ -11,5 +11,7 @@ namespace Common.DataAccess
         Response GetAllProducts();
         Response GetProduct(int Id);
         Response AddProduct(ProductDTO product);
+        Response UpdateProduct(Product product);
+        Response DeleteProduct(int Id);
     }
 }

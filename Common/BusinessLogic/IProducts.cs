@@ -12,5 +12,7 @@ namespace Common.BusinessLogic
         Response GetAllProduct();
         Response GetProduct(int Id);
         Response CreateProduct(ProductDTO product);
+        Response UpdateProduct(Product product);
+        Response DeleteProduct(int Id);
     }
 }
