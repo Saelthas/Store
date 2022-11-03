@@ -4,11 +4,10 @@ using System.Text;
 
 namespace Store.Models.Product
 {
-    public class Product: ProductDTO
+    public class ProductEntry: ProductEntryDTO
     {
         public int Id { get; set; }
-        public int Stock { get; set; }
         public DateTime CreatedDate { get; set; }
-        public DateTime UpdateDate { get; set; }
+        
     }
 }

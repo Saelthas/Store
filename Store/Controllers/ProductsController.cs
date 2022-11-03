@@ -89,5 +89,20 @@ namespace Products.Service.Controllers
                 return BadRequest("Id invalido");
             return Execute<int, object>(new Request<int>() { Data = id }, _products.DeleteProduct);
         }
+        [Route("RegisterEntry")]
+        [HttpPost]
+        public IActionResult RegisterEntry([FromBody] Request<ProductEntryDTO> request)
+        {
+
+            if (request.Data == null)
+            {
+                return BadRequest("Objeto ProductDTO es nulo");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Modelo de objecto invalido");
+            }
+            return Execute<ProductEntryDTO, int>(request, _products.RegisterEntry);
+        }
     }
 }

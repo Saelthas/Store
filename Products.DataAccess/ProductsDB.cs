@@ -37,8 +37,12 @@ namespace Products.DataAccess
                         List<Product> products = dataTable.AsEnumerable().Select(m => new Product()
                         {
                             Id = m.Field<int>("Id"),
+                            Code = m.Field<string>("Code"),
                             Name = m.Field<string>("Name"),
+                            Stock = m.Field<int>("Stock"),
+                            Price = m.Field<decimal>("Price"),
                             Description = m.Field<string>("Description"),
+                            
                             CreatedDate = m.Field<DateTime>("CreatedDate"),
                             UpdateDate = m.Field<DateTime>("UpdateDate")
                         }).ToList();
@@ -74,15 +78,19 @@ namespace Products.DataAccess
                         Product products = dataTable.AsEnumerable().Select(m => new Product()
                         {
                             Id = m.Field<int>("Id"),
+                            Code = m.Field<string>("Code"),
                             Name = m.Field<string>("Name"),
+                            Stock = m.Field<int>("Stock"),
+                            Price = m.Field<decimal>("Price"),
                             Description = m.Field<string>("Description"),
+
                             CreatedDate = m.Field<DateTime>("CreatedDate"),
                             UpdateDate = m.Field<DateTime>("UpdateDate")
                         }).First();
                         return Response.Success(products);
                     }
                     else
-                        return Response.Error("El Producto no esta registrado");
+                        return Response.Error($"El Identificador {Id} de Producto no existe.");
                 }
                 else
                 {
@@ -103,6 +111,8 @@ namespace Products.DataAccess
                 StoreProcedure storeProcedure = new StoreProcedure("[dbo].[AddProduct]");
                 storeProcedure.AddParameter("@Name", product.Name);
                 storeProcedure.AddParameter("@Description", product.Description);
+                storeProcedure.AddParameter("@Code", product.Code);
+                storeProcedure.AddParameter("@Price", product.Price);
                 DataTable dataTable = storeProcedure.ExecuteQuery(connection);
 
                 if (storeProcedure.Error.Length <= 0)
@@ -139,6 +149,8 @@ namespace Products.DataAccess
                 storeProcedure.AddParameter("@Id", product.Id);
                 storeProcedure.AddParameter("@Name", product.Name);
                 storeProcedure.AddParameter("@Description", product.Description);
+                storeProcedure.AddParameter("@Code", product.Description);
+                storeProcedure.AddParameter("@Price", product.Description);
                 DataTable dataTable = storeProcedure.ExecuteQuery(connection);
 
                 if (storeProcedure.Error.Length <= 0)
@@ -193,6 +205,77 @@ namespace Products.DataAccess
             catch (Exception ex)
             {
                 logger?.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public Response RegisterEntry(ProductEntryDTO entry)
+        {
+            try
+            {
+                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[CreateEntry]");
+                storeProcedure.AddParameter("@Supplier", entry.Supplier);
+                DataTable dataTable = storeProcedure.ExecuteQuery(connection);
+
+                if (storeProcedure.Error.Length <= 0)
+                {
+                    if (dataTable.Rows.Count > 0)
+                    {
+                        int identity = 0;
+                        foreach (DataRow item in dataTable.Rows)
+                        {
+                            identity = Convert.ToInt32(item["@@IDENTITY"].ToString());
+                        }
+                        return Response.Success(identity);
+                    }
+                    else
+                        return (Response.Error("No se pudo crear el producto"));
+                }
+                else
+                {
+                    this.logger?.LogError(storeProcedure.Error);
+                    return Response.ExceptionGenerate(storeProcedure.Error, Validation.SuggestedMessages.ErrorSql);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger?.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
+        public Response RegisterDetailEntry(ProductEntryDetail entry)
+        {
+            try
+            {
+                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[CreateDetailEntry]");
+                storeProcedure.AddParameter("@IdEntry", entry.IdEntry);
+                storeProcedure.AddParameter("@Quantity", entry.Quantity);
+                storeProcedure.AddParameter("@IdProduct", entry.IdProduct);
+                DataTable dataTable = storeProcedure.ExecuteQuery(connection);
+
+                if (storeProcedure.Error.Length <= 0)
+                {
+                    if (dataTable.Rows.Count > 0)
+                    {
+                        int identity = 0;
+                        foreach (DataRow item in dataTable.Rows)
+                        {
+                            identity = Convert.ToInt32(item["@@IDENTITY"].ToString());
+                        }
+                        return Response.Success(identity);
+                    }
+                    else
+                        return (Response.Error("No se pudo crear el producto"));
+                }
+                else
+                {
+                    this.logger?.LogError(storeProcedure.Error);
+                    return Response.ExceptionGenerate(storeProcedure.Error, Validation.SuggestedMessages.ErrorSql);
+                }
+            }
+            catch (Exception ex)
+            {
+                this.logger?.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }

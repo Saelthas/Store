@@ -32,7 +32,13 @@ namespace Common.Services
                 var tiempoSolicitud = DateTime.Now;
                 var result = func(request.Data);
                 var tiempoRespuesta = DateTime.Now;
-
+                if (result.Data == null)
+                    return new BadRequestObjectResult(new Response()
+                    {
+                        State = result.State,
+                        Data = null,//==null? default(TResponse) :(TResponse)result.Data,
+                        Message = result.Message
+                    }); 
                 return new OkObjectResult(new Response<TResponse>()
                 {
                     State = result.State,
@@ -62,9 +68,9 @@ namespace Common.Services
 
                 return new OkObjectResult(new Response<TResponse>()
                 {
-                    State = 1,
+                    State = result.State,
                     Data = (TResponse)result.Data,
-                    Message = string.Empty
+                    Message = result.Message
                 });
             }
             catch (Exception ex)

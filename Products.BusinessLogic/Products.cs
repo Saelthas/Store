@@ -18,6 +18,8 @@ namespace Products.BusinessLogic
         public Response GetAllProduct()
         {
             var products = _productsDB.GetAllProducts();
+            if (products.Data == null)
+                return Response.Error(products.Message);
             return Response.Success(products.Data);
 
         }
@@ -50,6 +52,27 @@ namespace Products.BusinessLogic
             if (UpProduct.Data == null)
                 return Response.Error(UpProduct.Message);
             return Response.Success(UpProduct.Data);
+        }
+        public Response RegisterEntry(ProductEntryDTO Entry)
+        {
+
+            var NewEntry = _productsDB.RegisterEntry(Entry);
+
+            if (NewEntry.Data == null)
+                return Response.Error(NewEntry.Message);
+            else
+            {
+                foreach (var Detail in Entry.ProductEntryDetailDTOs)
+                {
+                    _productsDB.RegisterDetailEntry(new ProductEntryDetail()
+                    {
+                        IdEntry = (int)NewEntry.Data,
+                        IdProduct = Detail.IdProduct,
+                        Quantity = Detail.Quantity
+                    });
+                }
+            }
+            return Response.Success(NewEntry.Data);
         }
     }
 }
