@@ -15,7 +15,7 @@ namespace Common.DataAccess
         Response DeleteProduct(int Id);
         Response RegisterEntry(ProductEntryDTO entry);
         Response RegisterDetailEntry(ProductEntryDetail entry);
-
+        Response UpdateStockProduct(Product product);
 
     }
 }

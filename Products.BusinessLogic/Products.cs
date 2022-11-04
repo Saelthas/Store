@@ -45,6 +45,13 @@ namespace Products.BusinessLogic
                 return Response.Error(UpProduct.Message);
             return Response.Success(UpProduct.Data);
         }
+        public Response UpdateStockProduct(Product product)
+        {
+            var UpProduct = _productsDB.UpdateStockProduct(product);
+            if (UpProduct.Data == null)
+                return Response.Error(UpProduct.Message);
+            return Response.Success(UpProduct.Data);
+        }
 
         public Response DeleteProduct(int Id)
         {
@@ -70,6 +77,7 @@ namespace Products.BusinessLogic
                         IdProduct = Detail.IdProduct,
                         Quantity = Detail.Quantity
                     });
+                    _productsDB.UpdateStockProduct(new Product() { Id = Detail.IdProduct, Stock = Detail.Quantity });
                 }
             }
             return Response.Success(NewEntry.Data);

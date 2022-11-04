@@ -69,5 +69,6 @@ namespace Store.Models
             };
             return res;
         }
+
     }
 }

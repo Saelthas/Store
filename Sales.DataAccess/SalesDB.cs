@@ -4,47 +4,45 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Models;
 using Store.Models;
-using Store.Models.Product;
+using Store.Models.Sale;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace Products.DataAccess
+namespace Sales.DataAccess
 {
-    public class ProductsDB : IProductsDB
+    public class SalesDB : ISalesDB
     {
-        private ILogger<ProductsDB> _logger;
+        private ILogger<SalesDB> _logger;
         private string _connection;
         private IConfiguration _configuration;
-        public ProductsDB(ILogger<ProductsDB> logger, IConfiguration configuration)
+        public SalesDB(ILogger<SalesDB> logger, IConfiguration configuration)
         {
-            _logger = logger;
-            _connection = Connections.StoreDatabase(configuration);
-            _configuration = configuration;
+            this._logger = logger;
+            this._connection = Connections.StoreDatabase(configuration);
+            this._configuration = configuration;
         }
-        public Response GetAllProducts()
+        public Response GetAllSales()
         {
             try
             {
-                var storeProcedure = new StoreProcedure("[dbo].[GetAllProducts]");
+                var storeProcedure = new StoreProcedure("[dbo].[GetAllSales]");
                 //storeProcedure.AddParameter("@CLIE_CIC_VC", cic);
                 var dataTable = storeProcedure.ExecuteQuery(_connection);
                 if (storeProcedure.Error.Length <= 0)
                 {
                     if (dataTable.Rows.Count > 0)
                     {
-                        List<Product> products = dataTable.AsEnumerable().Select(m => new Product()
+                        List<Sale> products = dataTable.AsEnumerable().Select(m => new Sale()
                         {
                             Id = m.Field<int>("Id"),
-                            Code = m.Field<string>("Code"),
-                            Name = m.Field<string>("Name"),
-                            Stock = m.Field<int>("Stock"),
-                            Price = m.Field<decimal>("Price"),
-                            Description = m.Field<string>("Description"),
-                            
+                            Subtotal = m.Field<decimal>("Subtotal"),
+                            Tax = m.Field<decimal>("Tax"),
+                            Total = m.Field<decimal>("Total"),
+
                             CreatedDate = m.Field<DateTime>("CreatedDate"),
-                            UpdateDate = m.Field<DateTime>("UpdateDate")
+                            UpdatedDate = m.Field<DateTime>("UpdatedDate")
                         }).ToList();
                         return Response.Success(products);
                     }
@@ -63,34 +61,31 @@ namespace Products.DataAccess
                 throw new Exception(ex.Message);
             }
         }
-
-        public Response GetProduct(int Id)
+        public Response GetSaleById(int id)
         {
             try
             {
-                var storeProcedure = new StoreProcedure("[dbo].[GetProduct]");
-                storeProcedure.AddParameter("@id", Id);
+                var storeProcedure = new StoreProcedure("[dbo].[GetSaleById]");
+                storeProcedure.AddParameter("@Id", id);
                 var dataTable = storeProcedure.ExecuteQuery(_connection);
                 if (storeProcedure.Error.Length <= 0)
                 {
                     if (dataTable.Rows.Count > 0)
                     {
-                        Product products = dataTable.AsEnumerable().Select(m => new Product()
+                        Sale products = dataTable.AsEnumerable().Select(m => new Sale()
                         {
                             Id = m.Field<int>("Id"),
-                            Code = m.Field<string>("Code"),
-                            Name = m.Field<string>("Name"),
-                            Stock = m.Field<int>("Stock"),
-                            Price = m.Field<decimal>("Price"),
-                            Description = m.Field<string>("Description"),
-
+                            Subtotal = m.Field<decimal>("Subtotal"),
+                            Tax = m.Field<decimal>("Tax"),
+                            Total = m.Field<decimal>("Total"),
+                            Status = m.Field<string>("Status"),
                             CreatedDate = m.Field<DateTime>("CreatedDate"),
-                            UpdateDate = m.Field<DateTime>("UpdateDate")
-                        }).First();
+                            UpdatedDate = m.Field<DateTime>("UpdatedDate")
+                        }).FirstOrDefault();
                         return Response.Success(products);
                     }
                     else
-                        return Response.Error($"El Identificador {Id} de Producto no existe.");
+                        return Response.Error("Sin productos registrados.");
                 }
                 else
                 {
@@ -104,15 +99,50 @@ namespace Products.DataAccess
                 throw new Exception(ex.Message);
             }
         }
-        public Response AddProduct(ProductDTO product)
+        public Response GetDetailSaleById(int id)
         {
             try
             {
-                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[AddProduct]");
-                storeProcedure.AddParameter("@Name", product.Name);
-                storeProcedure.AddParameter("@Description", product.Description);
-                storeProcedure.AddParameter("@Code", product.Code);
-                storeProcedure.AddParameter("@Price", product.Price);
+                var storeProcedure = new StoreProcedure("[dbo].[GetDetailSaleById]");
+                storeProcedure.AddParameter("@idSale", id);
+                var dataTable = storeProcedure.ExecuteQuery(_connection);
+                if (storeProcedure.Error.Length <= 0)
+                {
+                    if (dataTable.Rows.Count > 0)
+                    {
+                        List<SaleDetailDTO> Details = dataTable.AsEnumerable().Select(m => new SaleDetailDTO()
+                        {
+                            //IdSale = m.Field<int>("IdSale"),
+                            Quantity = m.Field<int>("Quantity"),
+                            IdProduct = m.Field<int>("IdProduct"),
+
+                        }).ToList();
+                        return Response.Success(Details);
+                    }
+                    else
+                        return Response.Error("Sin productos registrados.");
+                }
+                else
+                {
+                    this._logger?.LogError(storeProcedure.Error);
+                    return Response.ExceptionGenerate(storeProcedure.Error, Validation.SuggestedMessages.ErrorSql);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
+        public Response CreateSale(SaleDTO product)
+        {
+            try
+            {
+                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[AddSale]");
+                storeProcedure.AddParameter("@Subtotal", product.Subtotal);
+                storeProcedure.AddParameter("@Tax", product.Tax);
+                storeProcedure.AddParameter("@Total", product.Total);
+
                 DataTable dataTable = storeProcedure.ExecuteQuery(_connection);
 
                 if (storeProcedure.Error.Length <= 0)
@@ -141,17 +171,50 @@ namespace Products.DataAccess
                 throw new Exception(ex.Message);
             }
         }
-        public Response UpdateProduct(Product product)
+        public Response CreateSaleDetail(SaleDetail product)
         {
             try
             {
-                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[UpdateProduct]");
+                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[AddSaleDetail]");
+                storeProcedure.AddParameter("@IdSale", product.IdSale);
+                storeProcedure.AddParameter("@Quantity", product.Quantity);
+                storeProcedure.AddParameter("@IdProduct", product.IdProduct);
+
+                DataTable dataTable = storeProcedure.ExecuteQuery(_connection);
+
+                if (storeProcedure.Error.Length <= 0)
+                {
+                    if (dataTable.Rows.Count > 0)
+                    {
+                        int identity = 0;
+                        foreach (DataRow item in dataTable.Rows)
+                        {
+                            identity = Convert.ToInt32(item["@@IDENTITY"].ToString());
+                        }
+                        return Response.Success(identity);
+                    }
+                    else
+                        return (Response.Error("No se pudo crear el producto"));
+                }
+                else
+                {
+                    this._logger?.LogError(storeProcedure.Error);
+                    return Response.ExceptionGenerate(storeProcedure.Error, Validation.SuggestedMessages.ErrorSql);
+                }
+            }
+            catch (Exception ex)
+            {
+                this._logger?.LogError(ex.Message);
+                throw new Exception(ex.Message);
+            }
+        }
+        public Response UpdateStatusSale(Sale product)
+        {
+            try
+            {
+                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[UpdateStatusSale]");
                 storeProcedure.AddParameter("@Id", product.Id);
-                storeProcedure.AddParameter("@Code", product.Code);
-                storeProcedure.AddParameter("@Name", product.Name);
-                storeProcedure.AddParameter("@Description", product.Description);
-                //storeProcedure.AddParameter("@Code", product.Description);
-                storeProcedure.AddParameter("@Price", product.Price);
+                storeProcedure.AddParameter("@Status", product.Status);
                 DataTable dataTable = storeProcedure.ExecuteQuery(_connection);
 
                 if (storeProcedure.Error.Length <= 0)
@@ -181,16 +244,16 @@ namespace Products.DataAccess
             }
         }
 
-        public Response DeleteProduct(int Id)
+        public Response DeleteSale(int Id)
         {
             try
             {
-                var storeProcedure = new StoreProcedure("[dbo].[DeleteProduct]");
+                var storeProcedure = new StoreProcedure("[dbo].[DeleteSale]");
                 storeProcedure.AddParameter("@id", Id);
                 var dataTable = storeProcedure.ExecuteQuery(_connection);
                 if (storeProcedure.Error.Length <= 0)
                 {
-                    if (dataTable.Rows.Count > 0&& dataTable.Rows[0]["@@ROWCOUNT"].ToString()!="0")
+                    if (dataTable.Rows.Count > 0 && dataTable.Rows[0]["@@ROWCOUNT"].ToString() != "0")
                     {
                         return Response.Success(Convert.ToInt32(dataTable.Rows[0]["@@ROWCOUNT"].ToString()));
                     }
@@ -206,112 +269,6 @@ namespace Products.DataAccess
             catch (Exception ex)
             {
                 _logger?.LogError(ex.Message);
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public Response RegisterEntry(ProductEntryDTO entry)
-        {
-            try
-            {
-                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[CreateEntry]");
-                storeProcedure.AddParameter("@Supplier", entry.Supplier);
-                DataTable dataTable = storeProcedure.ExecuteQuery(_connection);
-
-                if (storeProcedure.Error.Length <= 0)
-                {
-                    if (dataTable.Rows.Count > 0)
-                    {
-                        int identity = 0;
-                        foreach (DataRow item in dataTable.Rows)
-                        {
-                            identity = Convert.ToInt32(item["@@IDENTITY"].ToString());
-                        }
-                        return Response.Success(identity);
-                    }
-                    else
-                        return (Response.Error("No se pudo crear el producto"));
-                }
-                else
-                {
-                    this._logger?.LogError(storeProcedure.Error);
-                    return Response.ExceptionGenerate(storeProcedure.Error, Validation.SuggestedMessages.ErrorSql);
-                }
-            }
-            catch (Exception ex)
-            {
-                this._logger?.LogError(ex.Message);
-                throw new Exception(ex.Message);
-            }
-        }
-        public Response RegisterDetailEntry(ProductEntryDetail entry)
-        {
-            try
-            {
-                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[CreateDetailEntry]");
-                storeProcedure.AddParameter("@IdEntry", entry.IdEntry);
-                storeProcedure.AddParameter("@Quantity", entry.Quantity);
-                storeProcedure.AddParameter("@IdProduct", entry.IdProduct);
-                DataTable dataTable = storeProcedure.ExecuteQuery(_connection);
-
-                if (storeProcedure.Error.Length <= 0)
-                {
-                    if (dataTable.Rows.Count > 0)
-                    {
-                        int identity = 0;
-                        foreach (DataRow item in dataTable.Rows)
-                        {
-                            identity = Convert.ToInt32(item["@@IDENTITY"].ToString());
-                        }
-                        return Response.Success(identity);
-                    }
-                    else
-                        return (Response.Error("No se pudo crear el producto"));
-                }
-                else
-                {
-                    this._logger?.LogError(storeProcedure.Error);
-                    return Response.ExceptionGenerate(storeProcedure.Error, Validation.SuggestedMessages.ErrorSql);
-                }
-            }
-            catch (Exception ex)
-            {
-                this._logger?.LogError(ex.Message);
-                throw new Exception(ex.Message);
-            }
-        }
-        public Response UpdateStockProduct(Product product)
-        {
-            try
-            {
-                StoreProcedure storeProcedure = new StoreProcedure("[dbo].[UpdateStockProduct]");
-                storeProcedure.AddParameter("@Id", product.Id);
-                storeProcedure.AddParameter("@Stock", product.Stock);
-                DataTable dataTable = storeProcedure.ExecuteQuery(_connection);
-
-                if (storeProcedure.Error.Length <= 0)
-                {
-                    if (dataTable.Rows.Count > 0)
-                    {
-                        int identity = 0;
-                        foreach (DataRow item in dataTable.Rows)
-                        {
-                            identity = Convert.ToInt32(item["@@ROWCOUNT"].ToString());
-                        }
-                        return Response.Success(identity);
-                    }
-                    else
-                        return (Response.Error("No se pudo Actualizar el producto"));
-                }
-                else
-                {
-                    this._logger?.LogError(storeProcedure.Error);
-                    return Response.ExceptionGenerate(storeProcedure.Error, Validation.SuggestedMessages.ErrorSql);
-                }
-            }
-            catch (Exception ex)
-            {
-                this._logger?.LogError(ex.Message);
                 throw new Exception(ex.Message);
             }
         }

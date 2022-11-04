@@ -4,6 +4,7 @@ using Store.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Common.Services
 {
@@ -39,6 +40,38 @@ namespace Common.Services
                         Data = null,//==null? default(TResponse) :(TResponse)result.Data,
                         Message = result.Message
                     }); 
+                return new OkObjectResult(new Response<TResponse>()
+                {
+                    State = result.State,
+                    Data = (TResponse)result.Data,//==null? default(TResponse) :(TResponse)result.Data,
+                    Message = result.Message
+                });
+            }
+            catch (Exception ex)
+            {
+
+                return new BadRequestObjectResult(new Response()
+                {
+                    State = 0,
+                    Data = null,
+                    Message = ex.Message
+                });
+            }
+        }
+        public async Task<IActionResult> ExecuteAsync<TRequest, TResponse>(Request<TRequest> request, Func<TRequest, Task<Response>> func)
+        {
+            try
+            {
+                var tiempoSolicitud = DateTime.Now;
+                var result = await func(request.Data);
+                var tiempoRespuesta = DateTime.Now;
+                if (result.Data == null)
+                    return new BadRequestObjectResult(new Response()
+                    {
+                        State = result.State,
+                        Data = null,//==null? default(TResponse) :(TResponse)result.Data,
+                        Message = result.Message
+                    });
                 return new OkObjectResult(new Response<TResponse>()
                 {
                     State = result.State,
