@@ -10,6 +10,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Store.DataAccess", "Store.DataAccess\Store.DataAccess.csproj", "{AC40A095-66CD-45A8-9BEC-28FDF9CA1591}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{3D005125-2225-44B7-B602-DDCAE12A2A4E}"
+	ProjectSection(SolutionItems) = preProject
+		QueryDataBase.sql = QueryDataBase.sql
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Products.BusinessLogic", "Products.BusinessLogic\Products.BusinessLogic.csproj", "{CE7F2451-3543-4005-A66F-817D4487FD46}"
 EndProject
@@ -23,11 +26,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sales", "Sales", "{402509B9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Products", "Products", "{E7FB5F2C-ABDE-4B80-A8F0-B5F2E560EA1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sales.Service", "Sale.Service\Sales.Service.csproj", "{85269356-E898-4E4A-BEF6-412A29DB3A44}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sales.Service", "Sale.Service\Sales.Service.csproj", "{85269356-E898-4E4A-BEF6-412A29DB3A44}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sales.BusinessLogic", "Sales.BusinessLogic\Sales.BusinessLogic.csproj", "{B0AD53E9-A1D9-4966-904B-46F52366F6ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sales.BusinessLogic", "Sales.BusinessLogic\Sales.BusinessLogic.csproj", "{B0AD53E9-A1D9-4966-904B-46F52366F6ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sales.DataAccess", "Sales.DataAccess\Sales.DataAccess.csproj", "{B21F11E0-4844-4DB6-8527-2AB12B5A9781}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sales.DataAccess", "Sales.DataAccess\Sales.DataAccess.csproj", "{B21F11E0-4844-4DB6-8527-2AB12B5A9781}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScriptsDB", "ScriptsDB", "{11F222A0-D9EF-4B45-83CF-EFC30A447768}"
+	ProjectSection(SolutionItems) = preProject
+		QueryDataBase.sql = QueryDataBase.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
