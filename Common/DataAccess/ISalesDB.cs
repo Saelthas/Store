@@ -11,7 +11,7 @@ namespace Common.DataAccess
         Response GetAllSales();
         Response GetSaleById(int id);
         Response GetDetailSaleById(int id);
-        Response CreateSale(SaleDTO product);
+        Response CreateSale(Sale product);
         Response CreateSaleDetail(SaleDetail product);
         Response UpdateStatusSale(Sale product);
         Response DeleteSale(int Id);

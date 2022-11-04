@@ -24,26 +24,29 @@ namespace Common.Services
 
 
         /// <summary>
-        /// Execute
+        /// Executor of functions synchronous
         /// </summary>
+        /// <typeparam name="TRequest">T</typeparam>
+        /// <typeparam name="TResponse">T</typeparam>
+        /// <param name="request">Request<T></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
         public IActionResult Execute<TRequest, TResponse>(Request<TRequest> request, Func<TRequest, Response> func)
         {
             try
             {
-                var tiempoSolicitud = DateTime.Now;
                 var result = func(request.Data);
-                var tiempoRespuesta = DateTime.Now;
                 if (result.Data == null)
                     return new BadRequestObjectResult(new Response()
                     {
                         State = result.State,
-                        Data = null,//==null? default(TResponse) :(TResponse)result.Data,
+                        Data = null,
                         Message = result.Message
                     }); 
                 return new OkObjectResult(new Response<TResponse>()
                 {
                     State = result.State,
-                    Data = (TResponse)result.Data,//==null? default(TResponse) :(TResponse)result.Data,
+                    Data = (TResponse)result.Data,
                     Message = result.Message
                 });
             }
@@ -58,24 +61,31 @@ namespace Common.Services
                 });
             }
         }
+
+        /// <summary>
+        /// Executor of functions asynchronous
+        /// </summary>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <typeparam name="TResponse"></typeparam>
+        /// <param name="request"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
         public async Task<IActionResult> ExecuteAsync<TRequest, TResponse>(Request<TRequest> request, Func<TRequest, Task<Response>> func)
         {
             try
             {
-                var tiempoSolicitud = DateTime.Now;
                 var result = await func(request.Data);
-                var tiempoRespuesta = DateTime.Now;
                 if (result.Data == null)
                     return new BadRequestObjectResult(new Response()
                     {
                         State = result.State,
-                        Data = null,//==null? default(TResponse) :(TResponse)result.Data,
+                        Data = null,
                         Message = result.Message
                     });
                 return new OkObjectResult(new Response<TResponse>()
                 {
                     State = result.State,
-                    Data = (TResponse)result.Data,//==null? default(TResponse) :(TResponse)result.Data,
+                    Data = (TResponse)result.Data,
                     Message = result.Message
                 });
             }
@@ -95,9 +105,7 @@ namespace Common.Services
         {
             try
             {
-                var tiempoSolicitud = DateTime.Now;
                 var result = func();
-                var tiempoRespuesta = DateTime.Now;
 
                 return new OkObjectResult(new Response<TResponse>()
                 {

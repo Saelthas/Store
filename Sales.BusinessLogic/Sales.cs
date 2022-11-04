@@ -45,7 +45,8 @@ namespace Sales.BusinessLogic
         }
         public Response CreateSale(SaleDTO sale)
         {
-            var NewSale = _salesDB.CreateSale(sale);
+            Decimal Tax = sale.Subtotal * (Convert.ToDecimal(_configuration["AppSettings:Tax"].ToString()));
+            var NewSale = _salesDB.CreateSale(new Sale() { Subtotal=sale.Subtotal-Tax, Tax= Tax, Total= sale.Subtotal});
             if (NewSale.Data == null)
                 return Response.Error(NewSale.Message);
             else

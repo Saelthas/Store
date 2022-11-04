@@ -78,7 +78,7 @@ namespace Products.Service.Controllers
             {
                 return BadRequest("Invalid model object");
             }
-            var x = new Request<Product> { Data = new Product() { Id = id,Code=request.Data.Code, Name = request.Data.Name, Description = request.Data.Description } };
+            var x = new Request<Product> { Data = new Product() { Id = id,Code=request.Data.Code, Name = request.Data.Name, Description = request.Data.Description , Price=request.Data.Price} };
             return Execute<Product, int>(x, _products.UpdateProduct);
         }
         [HttpPut("UpdateStock/{id}")]

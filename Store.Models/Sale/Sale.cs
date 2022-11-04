@@ -8,6 +8,8 @@ namespace Store.Models.Sale
     {
         public int Id { get; set; }
         public string Status { get; set; }
+        public decimal Tax { get; set; }
+        public decimal Total { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
     }

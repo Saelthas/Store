@@ -60,18 +60,21 @@ namespace Sales.Service.Controllers
             {
                 return BadRequest("Id invalido");
             }
-            
+
             if (!ModelState.IsValid)
             {
                 return BadRequest("Invalid model object");
             }
-            var x = new Request<Sale> { Data = new Sale() { Id = id, Status= "E"} };
+            var x = new Request<Sale> { Data = new Sale() { Id = id, Status = "E" } };
             return await ExecuteAsync<Sale, int>(x, _sales.UpdateStatusSaleAsync);
         }
-        [HttpDelete]
-        public IActionResult DeleteSale()
+        [HttpDelete("{id}")]
+        public IActionResult DeleteSale(int id)
         {
-            return null;
+            if (id == 0)
+                return BadRequest("Id invalido");
+            return Execute<int, object>(new Request<int>() { Data = id }, _sales.DeleteSale);
         }
+
     }
 }

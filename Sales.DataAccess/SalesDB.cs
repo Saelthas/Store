@@ -40,6 +40,7 @@ namespace Sales.DataAccess
                             Subtotal = m.Field<decimal>("Subtotal"),
                             Tax = m.Field<decimal>("Tax"),
                             Total = m.Field<decimal>("Total"),
+                            Status = m.Field<string>("Status"),
 
                             CreatedDate = m.Field<DateTime>("CreatedDate"),
                             UpdatedDate = m.Field<DateTime>("UpdatedDate")
@@ -134,7 +135,7 @@ namespace Sales.DataAccess
                 throw new Exception(ex.Message);
             }
         }
-        public Response CreateSale(SaleDTO product)
+        public Response CreateSale(Sale product)
         {
             try
             {
