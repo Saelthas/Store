@@ -4,7 +4,7 @@ Technical test, Fassil Bank
 # Para levantar el ambiente
 Primeramente se debe levantar la instancia de BD.
 Se adjunta el script de creacion de BD, Tablas y Procedimientos almacenados (SP's).
-
+**QueryDataBase.sql** en la raiz del proyecto.
 Luego de la ejecucion del script de creacion de la BD, se deben modificar las cadenas de conexion de los servicios de Products y Sales (archivos appsettings.json) con los respectivos usuarios, contraseñas y servidor (si no esta corriendo en el mismo equipo).
 Recordar que el usuario seleccionado para la cadena de conexion, debe tener los permisos suficientes sobre la nueva BD.
 Para esta prueba no se manejo ningun tipo de encriptacion, por lo que la cadena de conexion va en texto plano.
