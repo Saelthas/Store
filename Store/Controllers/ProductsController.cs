@@ -23,16 +23,22 @@ namespace Products.Service.Controllers
         public ProductsController(ILogger<ProductsController> logger, IProducts products) : base(logger)
         {
             _logger = logger;
-            //_context = context;
             this._products = products;
         }
-        //[Route("getAllProducts")]
+        /// <summary>
+        /// Get all products registered in the DataBase
+        /// </summary>
+        /// <returns>List of Products</returns>
         [HttpGet]
         public IActionResult GetAllProducts()
         {
             return Execute<List<Product>>(_products.GetAllProduct);
         }
-        //[Route("getProductById/{id}")]
+        /// <summary>
+        /// Get a specific product
+        /// </summary>
+        /// <param name="id">identifier of the product to search</param>
+        /// <returns></returns>
         [HttpGet("{id}", Name = "ProductById")]
         public IActionResult GetProductById(int id)
         {
@@ -43,6 +49,11 @@ namespace Products.Service.Controllers
             return Execute<int, Product>(new Request<int>() { Data = id }, _products.GetProduct);
             //return null;
         }
+        /// <summary>
+        /// Creates a product
+        /// </summary>
+        /// <param name="request">ProductDTO, contains the necesary data for insert to register in the DB</param>
+        /// <returns> id of the record inserted.</returns>
         [HttpPost]
         public IActionResult CreateProduct([FromBody] Request<ProductDTO> request)
         {
@@ -56,13 +67,13 @@ namespace Products.Service.Controllers
                 return BadRequest("Modelo de objecto invalido");
             }
             return Execute<ProductDTO, int>(request, _products.CreateProduct);
-            //var respo1 = ((response as ObjectResult).Value) as Response<Int64>;
-            //var cast1 = respo1 as Response<Int64>;
-            //int id = (int)((Response<Int64>)(response as ObjectResult).Value  ).Data;
-            //return CreatedAtRoute("ProductById", new { id = respo1.Data }, response);
-
-
         }
+        /// <summary>
+        /// Updates all parameters of a specific product.
+        /// </summary>
+        /// <param name="id">id of the product to update</param>
+        /// <param name="request">ProductDTO, contains the necesary data for update to register in the DB</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         public IActionResult UpdateProduct(int id, [FromBody] Request<ProductDTO> request)
         {
@@ -81,6 +92,12 @@ namespace Products.Service.Controllers
             var x = new Request<Product> { Data = new Product() { Id = id,Code=request.Data.Code, Name = request.Data.Name, Description = request.Data.Description , Price=request.Data.Price} };
             return Execute<Product, int>(x, _products.UpdateProduct);
         }
+        /// <summary>
+        /// Updates the stock of a specific product
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPut("UpdateStock/{id}")]
         public IActionResult UpdateStockProduct(int id, [FromBody] Request<ProductStockDTO> request)
         {
@@ -99,6 +116,11 @@ namespace Products.Service.Controllers
             var x = new Request<Product> { Data = new Product() { Id = id, Stock=request.Data.stock } };
             return Execute<Product, int>(x, _products.UpdateStockProduct);
         }
+        /// <summary>
+        /// Deletes a product by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {
@@ -106,6 +128,11 @@ namespace Products.Service.Controllers
                 return BadRequest("Id invalido");
             return Execute<int, object>(new Request<int>() { Data = id }, _products.DeleteProduct);
         }
+        /// <summary>
+        /// Register a product entry
+        /// </summary>
+        /// <param name="request">ProductEntryDTO </param>
+        /// <returns></returns>
         [Route("RegisterEntry")]
         [HttpPost]
         public IActionResult RegisterEntry([FromBody] Request<ProductEntryDTO> request)
