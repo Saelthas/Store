@@ -104,13 +104,10 @@ namespace DataAccess.Sql
             catch (SqlException error)
             {
                 _errorMessage = error.Message;
-                //connection.Close();
-                //SqlConnection.ClearAllPools();
             }
             finally
             {
                 connection.Close();
-                //SqlConnection.ClearAllPools();
             }
 
             return query;

@@ -23,42 +23,57 @@ namespace Products.Service.Controllers
         public ProductsController(ILogger<ProductsController> logger, IProducts products) : base(logger)
         {
             _logger = logger;
-            //_context = context;
             this._products = products;
         }
-        //[Route("getAllProducts")]
+        /// <summary>
+        /// Get all products registered in the DataBase
+        /// </summary>
+        /// <returns>List of Products</returns>
         [HttpGet]
         public IActionResult GetAllProducts()
         {
-            return Execute(_products.GetAllProduct);
+            return Execute<List<Product>>(_products.GetAllProduct);
         }
-        //[Route("getProductById/{id}")]
+        /// <summary>
+        /// Get a specific product
+        /// </summary>
+        /// <param name="id">identifier of the product to search</param>
+        /// <returns></returns>
         [HttpGet("{id}", Name = "ProductById")]
         public IActionResult GetProductById(int id)
         {
-            return Execute<int, Response>(new Request<int>() { Data = id }, _products.GetProduct);
+            if (id == 0)
+            {
+                return BadRequest("Id invalido");
+            }
+            return Execute<int, Product>(new Request<int>() { Data = id }, _products.GetProduct);
             //return null;
         }
+        /// <summary>
+        /// Creates a product
+        /// </summary>
+        /// <param name="request">ProductDTO, contains the necesary data for insert to register in the DB</param>
+        /// <returns> id of the record inserted.</returns>
         [HttpPost]
         public IActionResult CreateProduct([FromBody] Request<ProductDTO> request)
         {
 
-            if (request == null)
+            if (request.Data == null)
             {
-                return BadRequest("Owner object is null");
+                return BadRequest("Objeto ProductDTO es nulo");
             }
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid model object");
+                return BadRequest("Modelo de objecto invalido");
             }
-            return Execute<ProductDTO, Int64>(request, _products.CreateProduct);
-            //var respo1 = ((response as ObjectResult).Value) as Response<Int64>;
-            //var cast1 = respo1 as Response<Int64>;
-            //int id = (int)((Response<Int64>)(response as ObjectResult).Value  ).Data;
-            //return CreatedAtRoute("ProductById", new { id = respo1.Data }, response);
-
-
+            return Execute<ProductDTO, int>(request, _products.CreateProduct);
         }
+        /// <summary>
+        /// Updates all parameters of a specific product.
+        /// </summary>
+        /// <param name="id">id of the product to update</param>
+        /// <param name="request">ProductDTO, contains the necesary data for update to register in the DB</param>
+        /// <returns></returns>
         [HttpPut("{id}")]
         public IActionResult UpdateProduct(int id, [FromBody] Request<ProductDTO> request)
         {
@@ -74,14 +89,64 @@ namespace Products.Service.Controllers
             {
                 return BadRequest("Invalid model object");
             }
-            return Execute<ProductDTO, Int64>(request, _products.CreateProduct);
-            return null;
+            var x = new Request<Product> { Data = new Product() { Id = id,Code=request.Data.Code, Name = request.Data.Name, Description = request.Data.Description , Price=request.Data.Price} };
+            return Execute<Product, int>(x, _products.UpdateProduct);
         }
+        /// <summary>
+        /// Updates the stock of a specific product
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPut("UpdateStock/{id}")]
+        public IActionResult UpdateStockProduct(int id, [FromBody] Request<ProductStockDTO> request)
+        {
+            if (id == 0)
+            {
+                return BadRequest(Store.Models.Response.Error("Id invalido"));
+            }
+            if (request == null)
+            {
+                return BadRequest(Store.Models.Response.Error("Owner object is null"));
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(Store.Models.Response.Error("Invalid model object"));
+            }
+            var x = new Request<Product> { Data = new Product() { Id = id, Stock=request.Data.stock } };
+            return Execute<Product, int>(x, _products.UpdateStockProduct);
+        }
+        /// <summary>
+        /// Deletes a product by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(int id)
         {
+            if (id == 0)
+                return BadRequest("Id invalido");
+            return Execute<int, object>(new Request<int>() { Data = id }, _products.DeleteProduct);
+        }
+        /// <summary>
+        /// Register a product entry
+        /// </summary>
+        /// <param name="request">ProductEntryDTO </param>
+        /// <returns></returns>
+        [Route("RegisterEntry")]
+        [HttpPost]
+        public IActionResult RegisterEntry([FromBody] Request<ProductEntryDTO> request)
+        {
 
-            return null;
+            if (request.Data == null)
+            {
+                return BadRequest("Objeto ProductDTO es nulo");
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Modelo de objecto invalido");
+            }
+            return Execute<ProductEntryDTO, int>(request, _products.RegisterEntry);
         }
     }
 }

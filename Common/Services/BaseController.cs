@@ -4,6 +4,7 @@ using Store.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Common.Services
 {
@@ -23,21 +24,30 @@ namespace Common.Services
 
 
         /// <summary>
-        /// Execute
+        /// Executor of functions synchronous
         /// </summary>
+        /// <typeparam name="TRequest">T</typeparam>
+        /// <typeparam name="TResponse">T</typeparam>
+        /// <param name="request">Request<T></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
         public IActionResult Execute<TRequest, TResponse>(Request<TRequest> request, Func<TRequest, Response> func)
         {
             try
             {
-                var tiempoSolicitud = DateTime.Now;
                 var result = func(request.Data);
-                var tiempoRespuesta = DateTime.Now;
-
+                if (result.Data == null)
+                    return new BadRequestObjectResult(new Response()
+                    {
+                        State = result.State,
+                        Data = null,
+                        Message = result.Message
+                    }); 
                 return new OkObjectResult(new Response<TResponse>()
                 {
-                    State = 1,
+                    State = result.State,
                     Data = (TResponse)result.Data,
-                    Message = string.Empty
+                    Message = result.Message
                 });
             }
             catch (Exception ex)
@@ -52,19 +62,56 @@ namespace Common.Services
             }
         }
 
-        public IActionResult Execute<TResponse>(Func<TResponse> func)
+        /// <summary>
+        /// Executor of functions asynchronous
+        /// </summary>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <typeparam name="TResponse"></typeparam>
+        /// <param name="request"></param>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> ExecuteAsync<TRequest, TResponse>(Request<TRequest> request, Func<TRequest, Task<Response>> func)
         {
             try
             {
-                var tiempoSolicitud = DateTime.Now;
+                var result = await func(request.Data);
+                if (result.Data == null)
+                    return new BadRequestObjectResult(new Response()
+                    {
+                        State = result.State,
+                        Data = null,
+                        Message = result.Message
+                    });
+                return new OkObjectResult(new Response<TResponse>()
+                {
+                    State = result.State,
+                    Data = (TResponse)result.Data,
+                    Message = result.Message
+                });
+            }
+            catch (Exception ex)
+            {
+
+                return new BadRequestObjectResult(new Response()
+                {
+                    State = 0,
+                    Data = null,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        public IActionResult Execute<TResponse>(Func<Response> func)
+        {
+            try
+            {
                 var result = func();
-                var tiempoRespuesta = DateTime.Now;
 
                 return new OkObjectResult(new Response<TResponse>()
                 {
-                    State = 1,
-                    Data = (TResponse)result,
-                    Message = string.Empty
+                    State = result.State,
+                    Data = (TResponse)result.Data,
+                    Message = result.Message
                 });
             }
             catch (Exception ex)

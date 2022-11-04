@@ -1,16 +1,20 @@
 using Common.BusinessLogic;
 using Common.DataAccess;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Products.DataAccess;
-using Store.Models;
+using Microsoft.Extensions.Logging;
+using Sales.DataAccess;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Products.Service
+namespace Sales.Service
 {
     public class Startup
     {
@@ -24,11 +28,11 @@ namespace Products.Service
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddDbContext<DBContextInMemmory>(option => option.UseInMemoryDatabase(Configuration.GetConnectionString("MyDBStore")));
             services.AddControllers();
+            services.AddHttpClient();
             services.AddSwaggerGen();
-            services.AddSingleton<IProductsDB, ProductsDB>();
-            services.AddSingleton<IProducts, BusinessLogic.Products>();
+            services.AddSingleton<ISalesDB, SalesDB>();
+            services.AddSingleton<ISales, BusinessLogic.Sales>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -37,36 +41,17 @@ namespace Products.Service
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                 options.RoutePrefix = string.Empty;
             });
+
             app.UseHttpsRedirection();
-
-            app.UseExceptionHandler(config =>
-            {
-                config.Run(async context =>
-                {
-                    context.Response.StatusCode = 500;
-                    context.Response.ContentType = "application/json";
-
-                    var error = context.Features.Get<IExceptionHandlerFeature>();
-                    if (error != null)
-                    {
-                        var ex = error.Error;
-                        await context.Response.WriteAsync(new Response
-                        {
-                            State = 500,
-                            Message = ex.Message
-                        }.ToString());
-                    }
-                });
-            });
 
             app.UseRouting();
 
